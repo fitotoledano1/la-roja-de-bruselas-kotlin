@@ -31,5 +31,4 @@ class PlayerAdapter (var playerList : MutableList<Player.PlayerItem>): RecyclerV
     override fun getItemCount(): Int {
         return playerList.size
     }
-
 }
