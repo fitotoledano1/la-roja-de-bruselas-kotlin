@@ -11,9 +11,10 @@ import kotlinx.coroutines.withContext
 
 class NetworkManager {
     companion object {
-        // val mutableLiveList= MutableLiveData<MutableList<Player.PlayerItem>>()
 
-        fun fetch(): ArrayList<Player.PlayerItem>{
+        fun fetchPlayers(): ArrayList<Player.PlayerItem>{
+
+            Log.d("Gabriel", "network call being made")
 
             val tempList = arrayListOf<Player.PlayerItem>()
 
@@ -22,23 +23,24 @@ class NetworkManager {
                         .getLaRojaDataService()
                         .getLaRojaPlayers()
 
-                withContext(Dispatchers.Main) {
-                    if(response.isSuccessful) {
-                        val temp = response.body()
 
-                        var index = 0
-                        temp?.forEach {
-                            tempList.add(Player.PlayerItem(it.active, it.bio, it.gamesPlayed, it.goalsScored, it.name,
-                                    it.number, it.playerPictureUrl, it.position, it.profilePictureUrl, it.seasonsActive))
+                if(response.isSuccessful) {
+                    val temp = response.body()
 
-                            index += 1
-                        }
+                    var index = 0
+                    temp?.forEach {
+                        tempList.add(Player.PlayerItem(it.active, it.bio, it.gamesPlayed, it.goalsScored, it.name,
+                                it.number, it.playerPictureUrl, it.position, it.profilePictureUrl, it.seasonsActive))
 
+                        index += 1
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        tempList.sortBy { it.name }
                         HomeActivity.mutableLiveList.value = tempList
                     }
                 }
             }
-
             return tempList
         }
     }
