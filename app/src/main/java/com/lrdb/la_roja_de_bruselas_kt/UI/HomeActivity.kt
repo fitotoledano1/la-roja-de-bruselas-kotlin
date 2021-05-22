@@ -13,7 +13,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lrdb.la_roja_de_bruselas_kt.Model.Player
-import com.lrdb.la_roja_de_bruselas_kt.Networking.NetworkManager
+import com.lrdb.la_roja_de_bruselas_kt.Networking.PlayerRepository
+import com.lrdb.la_roja_de_bruselas_kt.Networking.playerRepository
 import com.lrdb.la_roja_de_bruselas_kt.R
 import com.lrdb.la_roja_de_bruselas_kt.View.PlayerAdapter
 import kotlinx.android.synthetic.main.activity_home.*
@@ -21,9 +22,13 @@ import kotlinx.android.synthetic.main.activity_home.*
 class HomeActivity : AppCompatActivity() {
 
     companion object {
-        val mutableLiveList = MutableLiveData<MutableList<Player.PlayerItem>>()
-        val currentList = NetworkManager.fetchPlayers()
+        var mutableLiveList = MutableLiveData<MutableList<Player.PlayerItem>>()
+        val currentList = PlayerRepository.fetchPlayers()
         var filteredPlayers = currentList
+
+        fun updatePlayerList(newPlayerList: ArrayList<Player.PlayerItem>) {
+            mutableLiveList.value = newPlayerList
+        }
     }
 
 
@@ -35,7 +40,6 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
         configureMutableLiveObserver()
-        createFilteredPlayersArray()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -63,11 +67,9 @@ class HomeActivity : AppCompatActivity() {
                 if(newText!!.isNotBlank()) {
 
                 }
-
                 return true
             }
         })
-
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -75,20 +77,25 @@ class HomeActivity : AppCompatActivity() {
 
         when (item.itemId) {
             R.id.filter_menu_option -> {
+                Log.d("gabriel", "filtered players = $filtered ,  $filteredPlayers")
                 when (filtered) {
-                    false -> currentList.filter { it.active }
-                    true -> currentList.filterNot { it.active }
+                    false -> {
+                        filteredPlayers.filterNot { it.active }
+                        updatePlayerList(filteredPlayers)
+                        filteredPlayers = currentList
+                    }
+                    else -> updatePlayerList(currentList)
                 }
-                Log.d("gabriel", "hello $currentList")
-                mutableLiveList.value = currentList
                 filtered = !filtered
+                updatePlayerList(filteredPlayers)
+                Log.d("gabriel", "filtered players = $filtered ,  $filteredPlayers")
             }
             R.id.sort_menu_option -> {
                 when (sorted) {
                     false -> currentList.sortBy { it.name }
                     else -> currentList.sortByDescending { it.name }
                 }
-                mutableLiveList.value = currentList
+                updatePlayerList(currentList)
                 sorted = !sorted
             }
         }
@@ -96,14 +103,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun configureMutableLiveObserver() {
-        mutableLiveList.observe(
+                mutableLiveList.observe(
             this, Observer{
                 playerList_recycler_view.layoutManager = LinearLayoutManager(this)
                 playerList_recycler_view.adapter = PlayerAdapter(currentList)
             })
-    }
-
-    fun createFilteredPlayersArray() {
-        filteredPlayers = currentList
     }
 }

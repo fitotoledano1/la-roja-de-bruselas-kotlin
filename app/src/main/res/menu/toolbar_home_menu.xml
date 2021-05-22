@@ -16,7 +16,7 @@
     <item
         android:title="Filter"
         android:id="@+id/filter_menu_option"
-        app:showAsAction="never"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_filter"/>
 
 </menu>
