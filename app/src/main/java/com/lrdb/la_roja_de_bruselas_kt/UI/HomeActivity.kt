@@ -12,9 +12,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.lrdb.la_roja_de_bruselas_kt.Model.Player
-import com.lrdb.la_roja_de_bruselas_kt.Networking.PlayerRepository
-import com.lrdb.la_roja_de_bruselas_kt.Networking.playerRepository
+import com.lrdb.la_roja_de_bruselas_kt.Model.Players
 import com.lrdb.la_roja_de_bruselas_kt.R
 import com.lrdb.la_roja_de_bruselas_kt.View.PlayerAdapter
 import kotlinx.android.synthetic.main.activity_home.*
@@ -22,22 +20,25 @@ import kotlinx.android.synthetic.main.activity_home.*
 class HomeActivity : AppCompatActivity() {
 
     companion object {
-        var mutableLiveList = MutableLiveData<MutableList<Player.PlayerItem>>()
-        val currentList = PlayerRepository.fetchPlayers()
+        var mutableLiveList = MutableLiveData<MutableList<Players.PlayerItem>>()
         var filteredPlayers = currentList
 
-        fun updatePlayerList(newPlayerList: ArrayList<Player.PlayerItem>) {
-            mutableLiveList.value = newPlayerList
+        fun updatePlayerList(newPlayersList: ArrayList<Players.PlayerItem>) {
+            mutableLiveList.value = newPlayersList
         }
     }
 
 
     private var sorted = true
     private var filtered = false
+    private val currentList = lazy {
+        app.playerRepository.fetchPlayers()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
 
         configureMutableLiveObserver()
     }

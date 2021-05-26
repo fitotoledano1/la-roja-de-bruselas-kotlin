@@ -3,7 +3,7 @@ package com.lrdb.la_roja_de_bruselas_kt.Model
 
 import com.google.gson.annotations.SerializedName
 
-class Player : ArrayList<Player.PlayerItem>(){
+class Players : ArrayList<Players.PlayerItem>(){
     data class PlayerItem(
         @SerializedName("active")
         val active: Boolean,
