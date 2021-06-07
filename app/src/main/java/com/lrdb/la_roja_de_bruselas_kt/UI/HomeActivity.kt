@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -15,25 +16,26 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.lrdb.la_roja_de_bruselas_kt.Model.Players
 import com.lrdb.la_roja_de_bruselas_kt.R
 import com.lrdb.la_roja_de_bruselas_kt.View.PlayerAdapter
+import com.lrdb.la_roja_de_bruselas_kt.ViewModel.HomeVM
+import com.lrdb.la_roja_de_bruselas_kt.ViewModel.createVMFactory
 import kotlinx.android.synthetic.main.activity_home.*
 
 class HomeActivity : AppCompatActivity() {
 
+    private val vm: HomeVM by viewModels {
+        createVMFactory { HomeVM(app.playerRepository) }
+    }
+
     companion object {
         var mutableLiveList = MutableLiveData<MutableList<Players.PlayerItem>>()
-        var filteredPlayers = currentList
 
         fun updatePlayerList(newPlayersList: ArrayList<Players.PlayerItem>) {
             mutableLiveList.value = newPlayersList
         }
     }
 
-
     private var sorted = true
     private var filtered = false
-    private val currentList = lazy {
-        app.playerRepository.fetchPlayers()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +66,6 @@ class HomeActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-
                 if(newText!!.isNotBlank()) {
 
                 }
@@ -74,7 +75,7 @@ class HomeActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    /* override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
             R.id.filter_menu_option -> {
@@ -101,13 +102,14 @@ class HomeActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
+    }*/
 
     fun configureMutableLiveObserver() {
-                mutableLiveList.observe(
+        playerList_recycler_view.layoutManager = LinearLayoutManager(this)
+
+        mutableLiveList.observe(
             this, Observer{
-                playerList_recycler_view.layoutManager = LinearLayoutManager(this)
-                playerList_recycler_view.adapter = PlayerAdapter(currentList)
+                playerList_recycler_view.adapter = PlayerAdapter(vm.playerList)
             })
     }
 }
